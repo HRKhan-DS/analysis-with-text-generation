@@ -1,19 +1,19 @@
 import streamlit as st
 import numpy as np
 import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoConfig
+from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 from scipy.special import softmax
 import re
-from transformers import pipeline
+from transformers import pipeline, set_seed
 
 # Load the text generation pipeline with GPT-2 model
-text_generator = pipeline("text-generation", model="openai-community/gpt2")
+generator = pipeline('text-generation', model='gpt2')
+set_seed(42)
 
 def get_model():
-    MODEL = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-    tokenizer = AutoTokenizer.from_pretrained(MODEL)
-    config = AutoConfig.from_pretrained(MODEL)
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL)
+    MODEL = "distilbert-base-uncased-finetuned-sst-2-english"
+    tokenizer = DistilBertTokenizer.from_pretrained(MODEL)
+    model = DistilBertForSequenceClassification.from_pretrained(MODEL)
     return tokenizer, model
 
 def clean_text(txt):
@@ -78,7 +78,7 @@ def main():
         # Generate comments for each type
         generated_comments = {}
         for comment_type, prompt in prompts.items():
-            generated_comment = text_generator(prompt, max_length=50, num_return_sequences=1)[0]['generated_text']
+            generated_comment = text_generator(prompt, max_length=50, num_return_sequences=5)[0]['generated_text']
             generated_comments[comment_type] = generated_comment
 
         # Print the generated comments for each type
